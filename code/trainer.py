@@ -14,8 +14,7 @@ from visualization import (
 from Postprocessing import FracturePostProcessor
 from vector_analysis import CrackVectorAnalyzer
 
-plt.rcParams['font.sans-serif'] = ['SimSun']  # 使用宋体
-plt.rcParams['axes.unicode_minus'] = False     # 解决负号显示问题
+plt.rcParams['axes.unicode_minus'] = False  # Fix minus sign display issue
 
 class Trainer:
     def __init__(self, model, train_loader, val_loader, criterion, optimizer, config, lr_scheduler=None):
@@ -61,15 +60,15 @@ class Trainer:
             
             # 训练阶段
             train_loss = self.train_epoch()
-            
-            # 验证阶段
-            val_loss = self.validate()
-            
-            # 记录到TensorBoard
-            self.writer.add_scalars('Loss', {
-                'train': train_loss,
-                'val': val_loss
-            }, epoch)
+            if epoch % 30 == 0:
+                # 验证阶段
+                val_loss = self.validate()
+                
+                # 记录到TensorBoard
+                self.writer.add_scalars('Loss', {
+                    'train': train_loss,
+                    'val': val_loss
+                }, epoch)
             
             # 学习率调整
             if self.lr_scheduler is not None:

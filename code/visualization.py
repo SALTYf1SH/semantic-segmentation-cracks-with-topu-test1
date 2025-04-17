@@ -5,9 +5,35 @@ import os
 import scipy.ndimage as ndimage
 from torchvision.utils import make_grid
 
-# 设置matplotlib字体
-plt.rcParams['font.sans-serif'] = ['SimSun']  # 使用宋体
-plt.rcParams['axes.unicode_minus'] = False     # 解决负号显示问题
+# Remove all font detection and Chinese font handling code
+plt.rcParams['axes.unicode_minus'] = False  # Fix minus sign display issue
+
+# English-only labels
+labels = {
+    'Feature Response Intensity': 'Feature Response Intensity',
+    'Feature Activation Map': 'Feature Activation Map',
+    'Velocity Magnitude': 'Velocity Magnitude',
+    'Crack Extension Vector Field': 'Crack Extension Vector Field',
+    'Probability Value': 'Probability Value',
+    'Crack Growth Probability Distribution': 'Crack Growth Probability Distribution',
+    'Input Image': 'Input Image',
+    'Segmentation Prediction': 'Segmentation Prediction',
+    'Segmentation Ground Truth': 'Segmentation Ground Truth',
+    'Edge Prediction': 'Edge Prediction',
+    'Edge Ground Truth': 'Edge Ground Truth',
+    'Skeleton Prediction': 'Skeleton Prediction',
+    'Skeleton Ground Truth': 'Skeleton Ground Truth',
+    'Endpoint Distribution': 'Endpoint Distribution',
+    'Junction Distribution': 'Junction Distribution',
+    'Fused Prediction Result': 'Fused Prediction Result',
+    'Feature Map Grid': 'Feature Map Grid',
+    'Endpoint Prediction Distribution': 'Endpoint Prediction Distribution',
+    'Junction Prediction Distribution': 'Junction Prediction Distribution'
+}
+
+def get_label(key):
+    """Return the English label text"""
+    return labels.get(key, key)  # If no mapping exists, return the original text
 
 def denormalize_image(image, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
     """
@@ -64,8 +90,8 @@ def visualize_feature_heatmap(features, save_path=None, smooth_sigma=2.0):
     # 创建热力图
     plt.figure(figsize=(10, 10))
     plt.imshow(response_map, cmap='hot')
-    plt.colorbar(label='特征响应强度')
-    plt.title('特征激活图')
+    plt.colorbar(label=get_label('Feature Response Intensity'))
+    plt.title(get_label('Feature Activation Map'))
     plt.axis('off')
     
     if save_path:
@@ -137,8 +163,8 @@ def visualize_vector_field(velocity_field, original_image=None, save_path=None, 
               cmap='hot',
               alpha=0.3)  # 降低透明度以便看清流线
     
-    plt.colorbar(label='速度大小')
-    plt.title('裂纹扩展矢量场')
+    plt.colorbar(label=get_label('Velocity Magnitude'))
+    plt.title(get_label('Crack Extension Vector Field'))
     plt.xlim(0, w)
     plt.ylim(0, h)
     
@@ -149,7 +175,7 @@ def visualize_vector_field(velocity_field, original_image=None, save_path=None, 
     plt.close()
 
 
-def visualize_probability_map(prob_map, original_image=None, save_path=None, title='概率分布', 
+def visualize_probability_map(prob_map, original_image=None, save_path=None, title='Probability Distribution', 
                             cmap='jet', smooth_sigma=1.0, alpha=0.6):
     """
     可视化概率图（通用函数）
@@ -187,8 +213,8 @@ def visualize_probability_map(prob_map, original_image=None, save_path=None, tit
     
     # 叠加概率热力图
     plt.imshow(prob_map_smooth, cmap=cmap, alpha=alpha)
-    plt.colorbar(label='概率值')
-    plt.title(title)
+    plt.colorbar(label=get_label('Probability Value'))
+    plt.title(get_label(title) if title in labels else title)
     
     if save_path:
         # 确保保存目录存在
@@ -223,31 +249,31 @@ def visualize_predictions(images, seg_preds, edge_preds, skel_preds, targets, ep
         img = denormalize_image(images[i])
         img = img.transpose(1, 2, 0)  # [C,H,W] -> [H,W,C]
         axes[0,0].imshow(img)
-        axes[0,0].set_title('输入图像')
+        axes[0,0].set_title(get_label('Input Image'))
         axes[0,0].axis('off')
         
         # 分割结果
         axes[0,1].imshow(seg_preds[i,0].cpu().numpy(), cmap='gray', vmin=0, vmax=1)
-        axes[0,1].set_title('分割预测')
+        axes[0,1].set_title(get_label('Segmentation Prediction'))
         axes[0,1].axis('off')
         axes[1,1].imshow(seg_gt[i,0].cpu().numpy(), cmap='gray', vmin=0, vmax=1)
-        axes[1,1].set_title('分割真值')
+        axes[1,1].set_title(get_label('Segmentation Ground Truth'))
         axes[1,1].axis('off')
         
         # 边缘结果
         axes[0,2].imshow(edge_preds[i,0].cpu().numpy(), cmap='gray', vmin=0, vmax=1)
-        axes[0,2].set_title('边缘预测')
+        axes[0,2].set_title(get_label('Edge Prediction'))
         axes[0,2].axis('off')
         axes[1,2].imshow(edge_gt[i,0].cpu().numpy(), cmap='gray', vmin=0, vmax=1)
-        axes[1,2].set_title('边缘真值')
+        axes[1,2].set_title(get_label('Edge Ground Truth'))
         axes[1,2].axis('off')
         
         # 骨架结果
         axes[0,3].imshow(skel_preds[i,0].cpu().numpy(), cmap='gray', vmin=0, vmax=1)
-        axes[0,3].set_title('骨架预测')
+        axes[0,3].set_title(get_label('Skeleton Prediction'))
         axes[0,3].axis('off')
         axes[1,3].imshow(skel_gt[i,0].cpu().numpy(), cmap='gray', vmin=0, vmax=1)
-        axes[1,3].set_title('骨架真值')
+        axes[1,3].set_title(get_label('Skeleton Ground Truth'))
         axes[1,3].axis('off')
         
         plt.tight_layout()
@@ -272,7 +298,7 @@ def visualize_crack_properties(predictions, original_image, save_dir):
             growth_prob,
             original_image,
             os.path.join(save_dir, 'growth_probability.png'),
-            title='裂纹生长概率分布'
+            title=get_label('Crack Growth Probability Distribution')
         )
     
     # 2. 矢量场叠加
@@ -293,7 +319,7 @@ def visualize_crack_properties(predictions, original_image, save_dir):
             topo_points[0],
             original_image,
             os.path.join(save_dir, 'endpoint_distribution.png'),
-            title='端点分布',
+            title=get_label('Endpoint Distribution'),
             cmap='hot'
         )
         
@@ -302,7 +328,7 @@ def visualize_crack_properties(predictions, original_image, save_dir):
             topo_points[1],
             original_image,
             os.path.join(save_dir, 'junction_distribution.png'),
-            title='交叉点分布',
+            title=get_label('Junction Distribution'),
             cmap='hot'
         )
     
@@ -313,7 +339,7 @@ def visualize_crack_properties(predictions, original_image, save_dir):
             fused,
             original_image,
             os.path.join(save_dir, 'fused_prediction.png'),
-            title='融合预测结果'
+            title=get_label('Fused Prediction Result')
         )
 
 def visualize_features(model, images, layer_names, epoch, save_dir):
@@ -361,11 +387,12 @@ def visualize_features(model, images, layer_names, epoch, save_dir):
                             normalize=True, nrow=8)
         plt.figure(figsize=(20,20))
         plt.imshow(grid_tensor.cpu().numpy().transpose(1,2,0), cmap='viridis')
-        plt.title(f'{name} - 特征图网格')
+        plt.title(f'{name} - {get_label("Feature Map Grid")}')
         plt.axis('off')
         plt.savefig(os.path.join(save_path, f'{name}_grid.png'), 
                 dpi=200, bbox_inches='tight')
         plt.close()
+
 # 添加演化预测和拓扑预测的可视化函数
 def visualize_evolution_prediction(predictions, original_image, save_dir):
     """
@@ -379,7 +406,7 @@ def visualize_evolution_prediction(predictions, original_image, save_dir):
         growth_prob,
         original_image,
         os.path.join(save_dir, 'growth_probability.png'),
-        title='裂纹生长概率分布'
+        title=get_label('Crack Growth Probability Distribution')
     )
     
     # 2. 速度场可视化
@@ -397,7 +424,7 @@ def visualize_evolution_prediction(predictions, original_image, save_dir):
             fused,
             original_image,
             os.path.join(save_dir, 'fused_prediction.png'),
-            title='融合预测结果'
+            title=get_label('Fused Prediction Result')
         )
 
 def visualize_topology_prediction(predictions, original_image, save_dir):
@@ -419,7 +446,7 @@ def visualize_topology_prediction(predictions, original_image, save_dir):
             topo_points[0],
             original_image,
             os.path.join(save_dir, 'endpoints.png'),
-            title='端点预测分布',
+            title=get_label('Endpoint Prediction Distribution'),
             cmap='cool'
         )
         
@@ -429,6 +456,6 @@ def visualize_topology_prediction(predictions, original_image, save_dir):
                 topo_points[1],
                 original_image,
                 os.path.join(save_dir, 'junctions.png'),
-                title='交叉点预测分布',
+                title=get_label('Junction Prediction Distribution'),
                 cmap='hot'
             )

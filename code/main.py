@@ -16,8 +16,7 @@ import visualization
 import os
 os.environ['OMP_NUM_THREADS'] = '1'
 import matplotlib.pyplot as plt
-plt.rcParams['font.sans-serif'] = ['SimSun']  # 使用宋体
-plt.rcParams['axes.unicode_minus'] = False     # 解决负号显示问题
+plt.rcParams['axes.unicode_minus'] = False  # Fix minus sign display issue
 
 
 def parse_args():

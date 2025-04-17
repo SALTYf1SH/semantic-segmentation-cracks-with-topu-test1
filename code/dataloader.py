@@ -39,11 +39,12 @@ class CrackDataset(Dataset):
         # 从图像文件名中提取数字部分
         for img_file in self.images:
             # 提取数字部分 (假设文件名格式为 "数字.png")
-            img_num = int(os.path.splitext(img_file)[0])
+            
+            #img_num = int(os.path.splitext(img_file)[0])
             
             # 查找对应的标签文件 (格式为 "000数字.png")
-            expected_label_format = f"{img_num:06d}.png"  # 格式化为6位数，前面补零
-            
+            #expected_label_format = f"{img_num:06d}.png"  # 格式化为6位数，前面补零
+            expected_label_format = img_file
             # 如果存在精确匹配的文件
             if expected_label_format in self.label_files:
                 mapping[img_file] = expected_label_format

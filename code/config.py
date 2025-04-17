@@ -2,7 +2,7 @@ import os
 
 class Config:
     # 数据集配置
-    DATA_DIR = "G:\\语义分割裂隙\\data\\data\\"  # 修改为包含所有图像和标签的父目录
+    DATA_DIR = "/workspace/data"  # 修改为包含所有图像和标签的父目录
     
     # 决定是否使用分割好的训练/验证集目录
     USE_SPLIT_FOLDERS = True  # 设置为False将使用同一目录
@@ -13,7 +13,7 @@ class Config:
     LABEL_DIR = os.path.join(DATA_DIR, "label")  # 所有标签的目录
     
     VIS_DIR = "visualizations"
-    VIS_SAVE_INTERVAL = 1  # 每隔多少个epoch保存一次可视化结果
+    VIS_SAVE_INTERVAL = 50  # 每隔多少个epoch保存一次可视化结果
     MAX_SAMPLES_PER_BATCH = 4  # 每个batch最多可视化多少个样本
     FEATURE_VIS_CHANNELS = 64  # 特征图可视化时最多显示多少个通道
     
@@ -22,10 +22,10 @@ class Config:
     def __init__(self):
         if self.USE_SPLIT_FOLDERS:
             # 使用分好的训练集和验证集
-            self.TRAIN_IMAGE_DIR = os.path.join(self.DATA_DIR, "train", "raw")
-            self.TRAIN_LABEL_DIR = os.path.join(self.DATA_DIR, "train", "label")
-            self.VAL_IMAGE_DIR = os.path.join(self.DATA_DIR, "val", "raw")
-            self.VAL_LABEL_DIR = os.path.join(self.DATA_DIR, "val", "label")
+            self.TRAIN_IMAGE_DIR = os.path.join(self.DATA_DIR, "img_dir", "train")
+            self.TRAIN_LABEL_DIR = os.path.join(self.DATA_DIR, "ann_dir", "train")
+            self.VAL_IMAGE_DIR = os.path.join(self.DATA_DIR, "img_dir", "val")
+            self.VAL_LABEL_DIR = os.path.join(self.DATA_DIR, "ann_dir", "val")
         else:
             # 使用同一目录（需要在dataloader中手动分割）
             self.TRAIN_IMAGE_DIR = self.IMAGE_DIR
@@ -34,8 +34,8 @@ class Config:
             self.VAL_LABEL_DIR = self.LABEL_DIR
         
         # 测试集目录（修改为绝对路径）
-        self.TEST_IMAGE_DIR = os.path.join(self.DATA_DIR, "test", "images")
-        self.TEST_LABEL_DIR = os.path.join(self.DATA_DIR, "test", "labels")
+        self.TEST_IMAGE_DIR = os.path.join(self.DATA_DIR, "img_dir", "val")
+        self.TEST_LABEL_DIR = os.path.join(self.DATA_DIR, "ann_dir", "val")
     
     # 输出与可视化目录
     CHECKPOINT_DIR = "checkpoints"
@@ -50,7 +50,7 @@ class Config:
     DEVICE = "cuda"
     SAVE_FREQ = 5  # 每多少个epoch保存一次模型
     PATIENCE = 10  # 早停等待周期
-    VIS_INTERVAL = 2  # 可视化间隔(epoch)
+    VIS_INTERVAL = 50  # 可视化间隔(epoch)
 
     # 模型参数
     INPUT_CHANNELS = 3
@@ -66,11 +66,15 @@ class Config:
     SAVE_POSTPROCESSING = True      # 是否保存后处理结果
     def setup_dirs(self):
         """创建必要的目录结构"""
-        vis_dirs = [
+        # 创建输出目录
+        output_dirs = [
+            self.CHECKPOINT_DIR,
+            self.LOG_DIR,
+            self.VIS_DIR,
             os.path.join(self.VIS_DIR, 'validation'),
             os.path.join(self.VIS_DIR, 'features')
         ]
-        for d in vis_dirs:
+        for d in output_dirs:
             os.makedirs(d, exist_ok=True)
         
         # 检查数据目录是否存在

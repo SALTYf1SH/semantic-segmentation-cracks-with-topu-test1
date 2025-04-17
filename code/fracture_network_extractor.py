@@ -32,7 +32,8 @@ def extract_fracture_network(image_path, threshold_value=128, visualize=False):
 
     print(f"Image dimensions: {img.shape}")
     print(f"Image data type: {img.dtype}")
-
+    #将img中非0的值变为255
+    img[img != 0] = 255 
     # 2. Binarize (ensure 0 and 255)
     _, binary_img = cv2.threshold(img, threshold_value, 255, cv2.THRESH_BINARY)
     binary_bool = binary_img > 0
@@ -51,8 +52,7 @@ def extract_fracture_network(image_path, threshold_value=128, visualize=False):
             # --- Visualization for Empty Skeleton ---
             print("Generating visualization for empty skeleton...")
             plt.style.use('default') # Use default style
-            # Ensure Unicode minus sign works correctly with default fonts
-            plt.rcParams['axes.unicode_minus'] = False
+            plt.rcParams['axes.unicode_minus'] = False  # Fix minus sign display issue
             fig, axes = plt.subplots(1, 2, figsize=(12, 6))
             ax = axes.ravel()
 
@@ -148,10 +148,9 @@ def extract_fracture_network(image_path, threshold_value=128, visualize=False):
         # --- Visualization for Non-Empty Skeleton ---
         print("Generating visualization...")
 
-        # Removed Chinese font settings here, rely on default font for English
+        # Use default font settings for English
         plt.style.use('default')
-        # Ensure Unicode minus sign works correctly with default fonts
-        plt.rcParams['axes.unicode_minus'] = False
+        plt.rcParams['axes.unicode_minus'] = False  # Fix minus sign display issue
 
         fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharex=True, sharey=True)
         ax = axes.ravel()
